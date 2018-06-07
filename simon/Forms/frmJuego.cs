@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 using System.Threading;
+using System.Media;
+using WMPLib;
+using System.IO;
 
 namespace Simon
 {
@@ -19,7 +18,7 @@ namespace Simon
         BackEnd backEnd;
         Thread hilo;
         ThreadStart delegadoHilo;
-
+        
         public frmJuego(int unaDificultad, BackEnd unBackEnd)
         {
             InitializeComponent();
@@ -32,7 +31,22 @@ namespace Simon
             backEnd = unBackEnd;
             dificultad = unaDificultad;
             delegadoHilo = new ThreadStart(generarYPintar);
-            hilo = new Thread(delegadoHilo);
+            hilo = new Thread(delegadoHilo);            
+        }
+
+        private static void reproducirSonidoPerdida()
+        {
+            var wmp = new WindowsMediaPlayer();
+            string path = @"D:\lose.wav";
+            wmp.URL = path;
+            wmp.controls.play();            
+        }
+
+        private void reproducirSonidoPerdidaConHilo()
+        {
+            Thread hilo = new Thread(() => reproducirSonidoPerdida());
+            hilo.IsBackground = true;
+            hilo.Start();
         }
 
         private void generarBotones(int dificultad)
@@ -123,21 +137,33 @@ namespace Simon
                    }
                 else
                     {
-                      pintarBoton(int.Parse(((Button)sender).Text) - 1, Color.Red, 600);
-                      MessageBox.Show(string.Format("Perdiste, hiciste {0}  pts. en dificultad {1}. Te tocan {2} caramelos",
-                      listaBotonesJugados.Count - 1, dificultad, (listaBotonesJugados.Count - 1)/5));
-                      if ((dificultad>=2)&&(dificultad<=4))
-                      {
-                         backEnd.sumarPuntos(dificultad, listaBotonesJugados.Count-1);
-                      }
-                      Close();
+                        perder(sender);
                     }
             }
             else
             {
-                MessageBox.Show("No hagas trampa, espera que termine la secuencia...");
-                this.Close();
+                avisarNoCheat();
             }
+        }
+
+        private void avisarNoCheat()
+        {
+            MessageBox.Show("No hagas trampa, espera que termine la secuencia...");
+            this.Close();
+        }
+
+        private void perder(object sender)
+        {
+            reproducirSonidoPerdidaConHilo();
+            pintarBoton(int.Parse(((Button)sender).Text) - 1, Color.Red, 600);
+            Thread.Sleep(1000);
+            MessageBox.Show(string.Format("Perdiste, hiciste {0}  pts. en dificultad {1}. Te tocan {2} caramelos",
+            listaBotonesJugados.Count - 1, dificultad, (listaBotonesJugados.Count - 1) / 5));
+            if ((dificultad >= 2) && (dificultad <= 4))
+            {
+                backEnd.sumarPuntos(dificultad, listaBotonesJugados.Count - 1);
+            }
+            Close();
         }
 
         private void boton_MouseUp(object sender, EventArgs e)
@@ -150,25 +176,6 @@ namespace Simon
                 hilo.Start();
             }
         }
-
-        private void boton_Click(object sender, EventArgs e)
-        {
-            if (listaBotonesJugados[nroTurno] == int.Parse(((Button)sender).Text) - 1)
-            {
-                pintarBoton(listaBotonesJugados[nroTurno], Color.LightGreen);
-                nroTurno++;
-                if (nroTurno == listaBotonesJugados.Count)
-                {
-                    nroTurno = 0;
-                    hilo.Start();
-                }
-            }
-            else
-            {
-                pintarBoton(listaBotonesJugados[nroTurno], Color.Red);
-                MessageBox.Show("Perdiste, hiciste " + listaBotonesJugados.Count.ToString() + " pts.");
-                Close();
-            }
-        }
+        
     }
 }
