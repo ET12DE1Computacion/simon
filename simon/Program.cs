@@ -15,7 +15,7 @@ namespace Simon
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            BackEnd backEnd = new BackEnd("server=localhost;database=simon;uid=invitado;pwd=invitado;");
+            BackEnd backEnd = new BackEnd("server=localhost;database=simon;uid=simon;pwd=simon;");
             Application.Run(new frmMenu(backEnd));
         }
     }

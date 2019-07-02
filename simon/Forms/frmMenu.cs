@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace Simon
@@ -22,17 +16,26 @@ namespace Simon
 
         private void btnFacil_Click(object sender, EventArgs e)
         {
-            llamarJuegoConDificultad(2);
+            jugarSiVerifica(2);
+        }
+
+        private void jugarSiVerifica(int dificultad)
+        {
+            if (verificarNombre())
+            {
+                llamarJuegoConDificultad(dificultad);
+            }
+            MessageBox.Show("Por favor, ingresa o selecciona tu nombre");
         }
 
         private void btnMedio_Click(object sender, EventArgs e)
         {
-            llamarJuegoConDificultad(3);
+            jugarSiVerifica(3);
         }
 
         private void btnDificil_Click(object sender, EventArgs e)
         {
-            llamarJuegoConDificultad(4);
+            jugarSiVerifica(4);
         }
 
         private void btnProbar_Click(object sender, EventArgs e)
@@ -82,6 +85,11 @@ namespace Simon
         {
             frmPuntaje puntaje = new frmPuntaje(backEnd.traePuntaje());
             puntaje.ShowDialog();
+        }
+
+        private bool verificarNombre()
+        {
+            return cmbNombre.Text.Length != 0;
         }
     }
 }
